@@ -65,9 +65,9 @@ Cuando haya fechas confirmadas, en la sección `#shows` de `index.html`:
 
 ---
 
-### 7. Prensa
+###  Prensa
 
-En la sección `#prensa`, reemplazá los 3 cards placeholder con los datos reales:
+En la sección `#prensa`, reemplazár los 3 cards placeholder con los datos reales:
 ```html
 <div class="prensa-card">
   <p class="prensa-medio">NOMBRE DEL MEDIO</p>
