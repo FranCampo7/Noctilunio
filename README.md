@@ -31,110 +31,9 @@ noctilunio/
 
 ---
 
-## ⚙️ Configuraciones necesarias antes de publicar
 
-### 1. Formulario de contacto — Formspree (GRATIS)
 
-1. Creá una cuenta en https://formspree.io
-2. Creá un nuevo formulario
-3. Copiá tu endpoint (ej: `https://formspree.io/f/xpwzabcd`)
-4. En `index.html`, buscá la línea:
-   ```html
-   <form id="formContacto" action="https://formspree.io/f/TU_FORM_ID"
-   ```
-   Reemplazá `TU_FORM_ID` por tu ID real.
-
----
-
-### 2. Emails del Merch — EmailJS (GRATIS hasta 200 emails/mes)
-
-1. Creá una cuenta en https://emailjs.com
-2. Conectá tu cuenta de Gmail (`noctilunio@gmail.com`)
-3. Creá **dos templates**:
-
-   **Template 1 — para la banda** (`TEMPLATE_BANDA`):
-   ```
-   Nuevo pedido de {{nombre}}
-   Producto: {{producto}}
-   Precio: {{precio}}
-   Talle: {{talle}}
-   Email: {{email}}
-   Tel/WA: {{tel}}
-   Notas: {{notas}}
-   Alias de pago: {{alias}}
-   ```
-
-   **Template 2 — para el cliente** (`TEMPLATE_CLIENTE`):
-   ```
-   Hola {{nombre}}, ¡gracias por tu compra!
-   Recibimos tu pedido: {{producto}} — {{precio}}
-   Realizá el pago al ALIAS: NOCTILUNIO
-   Te contactamos en 24hs para coordinar la entrega.
-   — Noctilunio
-   ```
-
-4. En `index.html` reemplazá `TU_PUBLIC_KEY` con tu Public Key de EmailJS:
-   ```html
-   emailjs.init('TU_PUBLIC_KEY');
-   ```
-
-5. En `js/main.js` reemplazá los placeholders:
-   ```js
-   'SERVICE_ID'       → tu Service ID de EmailJS
-   'TEMPLATE_BANDA'   → ID del template para la banda
-   'TEMPLATE_CLIENTE' → ID del template de confirmación
-   ```
-
----
-
-### 3. Audio — Convertir WAV a MP3
-
-El archivo `Vamos a Jugar.wav` pesa 83MB. **No subir el WAV a producción.**
-
-Convertir con ffmpeg (recomendado):
-```bash
-ffmpeg -i "Vamos a Jugar.wav" -q:a 2 "vamos-a-jugar.mp3"
-```
-O usar un conversor online: https://cloudconvert.com/wav-to-mp3
-
-Luego en `index.html` actualizá:
-```html
-<source src="vamos-a-jugar.mp3" type="audio/mpeg">
-```
-
----
-
-### 4. Fotos de integrantes
-
-Cuando tengan las fotos actualizadas de Cami, reemplazar en `index.html` el bloque:
-```html
-<div class="member-photo-placeholder">...</div>
-```
-Por:
-```html
-<img class="member-photo" src="assets/integrantes/camila.webp" alt="Camila Campodonico — Bajista y Vocalista">
-```
-
-Hacer lo mismo para Francisco y Maciel con sus respectivas rutas.
-
----
-
-### 5. Galerías de fotos
-
-Cada álbum necesita:
-- Una imagen `portada.webp` en su carpeta
-- Fotos numeradas: `1.webp`, `2.webp`, etc.
-
-En `index.html`, en la sección `#fotos`, el tercer parámetro del `onclick` es la **cantidad de fotos**:
-```html
-onclick="abrirGaleria('CHILI', 'fotos-shows/chili/', 45)"
-                                                       ↑ cantidad real de fotos
-```
-Actualizá ese número para cada álbum.
-
----
-
-### 6. Shows
+### Shows
 
 Cuando haya fechas confirmadas, en la sección `#shows` de `index.html`:
 
@@ -182,16 +81,6 @@ En la sección `#prensa`, reemplazá los 3 cards placeholder con los datos reale
 
 ---
 
-## 🚀 Publicar en Netlify
-
-1. Subí toda la carpeta del proyecto a GitHub (repo privado o público)
-2. En https://netlify.com → "Add new site" → "Import from Git"
-3. Seleccioná el repo, build command vacío, publish directory: `.` (raíz)
-4. Deploy → listo.
-
-No necesita build pipeline. Netlify sirve los archivos HTML/CSS/JS directamente.
-
----
 
 ## 📝 Notas de mantenimiento
 
