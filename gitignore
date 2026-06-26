@@ -1,0 +1,41 @@
+# ─── ARCHIVOS DE SISTEMA ───────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+desktop.ini
+
+# ─── EDITORES ───────────────────────────────────
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# ─── AUDIO / VIDEO PESADOS ──────────────────────
+# El WAV original NO va al repo (83MB). Subir solo el MP3 convertido.
+*.wav
+*.WAV
+*.mov
+*.MOV
+*.avi
+*.AVI
+*.mkv
+
+# ─── IMÁGENES RAW / EDITABLES ───────────────────
+*.psd
+*.ai
+*.xd
+*.fig
+*.sketch
+
+# ─── NODE (por si en algún momento se agrega tooling) ───
+node_modules/
+npm-debug.log*
+package-lock.json
+
+# ─── MISCELÁNEA ─────────────────────────────────
+*.zip
+*.rar
+*.tar.gz

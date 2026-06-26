@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NOCTILUNIO | Sitio Oficial</title>
+
+  <!-- SEO básico -->
+  <meta name="description" content="Noctilunio — Banda de rock de Córdoba, Argentina. Shows, fotos, videos, merch y fanzine oficial.">
+  <meta name="keywords" content="Noctilunio, banda, rock, Córdoba, Argentina, música, shows">
+  <meta name="author" content="Noctilunio">
+
+  <!-- Open Graph (previsualización en redes) -->
+  <meta property="og:title" content="NOCTILUNIO | Sitio Oficial">
+  <meta property="og:description" content="Banda de rock de Córdoba, Argentina. Shows, fotos, videos y merch oficial.">
+  <meta property="og:image" content="logo.PNG">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Fuentes -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- CSS principal -->
+  <link rel="stylesheet" href="css/main.css">
+
+  <!-- EmailJS (para el formulario de merch) -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script>
+    // Reemplazá 'TU_PUBLIC_KEY' con tu Public Key de emailjs.com
+    emailjs.init('TU_PUBLIC_KEY');
+  </script>
+</head>
+
+<body>
+
+  <!-- ==========================================
+       FONDO ANIMADO
+       ========================================== -->
+  <div class="bg-slideshow">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+
+  <!-- ==========================================
+       VISOR GRANDE DE FOTOS
+       ========================================== -->
+  <div id="visorGrande">
+    <button class="cerrar-visor" onclick="cerrarVisor()" aria-label="Cerrar visor">&times;</button>
+    <button class="flecha flecha-izq" onclick="cambiarFoto(-1)" aria-label="Foto anterior">&#10094;</button>
+    <img id="imgEnVisor" src="" alt="Foto en tamaño completo">
+    <button class="flecha flecha-der" onclick="cambiarFoto(1)" aria-label="Foto siguiente">&#10095;</button>
+  </div>
+
+  <!-- ==========================================
+       MODAL — GALERÍA DE ÁLBUM
+       ========================================== -->
+  <div id="modalGaleria" class="modal-galeria">
+    <div class="modal-inner">
+      <div class="modal-header">
+        <button class="btn-volver" onclick="cerrarGaleria()">← VOLVER</button>
+        <h2 class="modal-titulo" id="tituloGaleria"></h2>
+      </div>
+      <div id="gridFotos" class="grid-fotos-interior"></div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       MODAL — PEDIDO MERCH
+       ========================================== -->
+  <div id="modalMerch" class="modal-merch">
+    <div class="modal-merch-inner">
+      <button class="cerrar-modal-merch" onclick="cerrarModalMerch()" aria-label="Cerrar">&times;</button>
+
+      <h2 class="modal-merch-title" id="modalMerchTitle">PEDIDO</h2>
+      <p class="modal-merch-product" id="modalMerchProduct"></p>
+
+      <form id="formMerch" novalidate>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="merch-nombre">Nombre completo *</label>
+            <input class="form-input" id="merch-nombre" name="nombre" type="text" placeholder="Tu nombre" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="merch-tel">Teléfono / WhatsApp *</label>
+            <input class="form-input" id="merch-tel" name="tel" type="tel" placeholder="+54 9..." required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="merch-email">Email *</label>
+          <input class="form-input" id="merch-email" name="email" type="email" placeholder="tu@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="merch-talle">Talle (si aplica)</label>
+          <select class="form-select" id="merch-talle" name="talle">
+            <option value="—">No aplica / Talle único</option>
+            <option value="XS">XS</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+            <option value="XXL">XXL</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="merch-notas">Notas adicionales</label>
+          <textarea class="form-textarea" id="merch-notas" name="notas" placeholder="Color, combinaciones, consultas..."></textarea>
+        </div>
+
+        <div class="alias-box">
+          <p class="alias-label">Pago por transferencia / ALIAS</p>
+          <p class="alias-value">NOCTILUNIO</p>
+          <p class="alias-monto">Monto a transferir: <strong id="modalMerchPrice"></strong></p>
+        </div>
+
+        <p style="font-size:0.75rem; color:var(--color-text-muted); margin-bottom:16px; line-height:1.6;">
+          Una vez confirmado el pago, nos comunicaremos con vos para coordinar la entrega o el envío.
+        </p>
+
+        <button class="btn-enviar" type="submit">CONFIRMAR PEDIDO</button>
+      </form>
+
+      <div id="formSuccessMsg" class="form-success" style="display:none;">
+        <div class="form-success-icon">🌙</div>
+        <h3>¡PEDIDO RECIBIDO!</h3>
+        <p>Gracias por tu compra. Nos pondremos en contacto en las próximas 24hs para coordinar el pago y la entrega.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================
+       NAVBAR
+       ========================================== -->
+  <nav class="navbar">
+    <div class="logo-chico" data-section="inicio">NOCTILUNIO</div>
+
+    <!-- Desktop -->
+    <ul class="nav-links">
+      <li><a data-section="inicio" class="active">INICIO</a></li>
+      <li><a data-section="noctilunio">NOCTILUNIO</a></li>
+      <li><a data-section="shows">SHOWS</a></li>
+      <li><a data-section="fotos">FOTOS</a></li>
+      <li><a data-section="videos">VIDEOS</a></li>
+      <li><a data-section="prensa">PRENSA</a></li>
+      <li><a data-section="fanzine">FANZINE</a></li>
+      <li><a data-section="merch">MERCH</a></li>
+      <li><a data-section="contacto">CONTACTO</a></li>
+    </ul>
+
+    <!-- Hamburger -->
+    <button class="hamburger" id="hamburger" aria-label="Abrir menú">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- Mobile nav -->
+  <ul class="nav-mobile" id="navMobile">
+    <li><a data-section="inicio">INICIO</a></li>
+    <li><a data-section="noctilunio">NOCTILUNIO</a></li>
+    <li><a data-section="shows">SHOWS</a></li>
+    <li><a data-section="fotos">FOTOS</a></li>
+    <li><a data-section="videos">VIDEOS</a></li>
+    <li><a data-section="prensa">PRENSA</a></li>
+    <li><a data-section="fanzine">FANZINE</a></li>
+    <li><a data-section="merch">MERCH</a></li>
+    <li><a data-section="contacto">CONTACTO</a></li>
+  </ul>
+
+  <!-- ==========================================
+       MAIN CONTAINER
+       ========================================== -->
+  <main class="main-container">
+
+    <!-- ========== INICIO ========== -->
+    <section id="inicio" class="page-section active">
+      <img src="logo.PNG" alt="Logo Noctilunio" class="hero-logo">
+      <p class="hero-tagline">Córdoba · Argentina</p>
+    </section>
+
+    <!-- ========== NOCTILUNIO ========== -->
+    <section id="noctilunio" class="page-section">
+      <h2 class="section-title">NOCTILUNIO</h2>
+      <p class="section-subtitle">Córdoba, Argentina</p>
+
+      <div class="bio-wrapper">
+        <p class="bio-text">
+          Noctilunio nació en las noches de Córdoba, donde la oscuridad tiene su propia luz.
+          Una banda que construye canciones desde el margen del rock, mezclando intensidad en vivo,
+          letras que duelen y una energía escénica que se siente antes de que suene la primera nota.
+          Con un disco grabado y una comunidad que crece show a show, Noctilunio es una de las propuestas
+          más genuinas del circuito independiente cordobés.
+        </p>
+        <div class="bio-divider"></div>
+        <p class="band-title">Los integrantes</p>
+      </div>
+
+      <div class="members-grid">
+
+        <!-- Camila Campodonico -->
+        <div class="member-card">
+          <!-- Reemplazá el bloque member-photo-placeholder por <img class="member-photo" src="assets/integrantes/camila.webp" alt="Camila Campodonico"> cuando tengas la foto -->
+          <div class="member-photo-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+            <span>Foto próximamente</span>
+          </div>
+          <div class="member-info">
+            <h3 class="member-name">Camila Campodonico</h3>
+            <p class="member-role">Bajista · Vocalista</p>
+          </div>
+        </div>
+
+        <!-- Francisco Gonella Fava -->
+        <div class="member-card">
+          <div class="member-photo-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+            <span>Foto próximamente</span>
+          </div>
+          <div class="member-info">
+            <h3 class="member-name">Francisco Gonella Fava</h3>
+            <p class="member-role">Guitarrista · Vocalista</p>
+          </div>
+        </div>
+
+        <!-- Maciel Riberi -->
+        <div class="member-card">
+          <div class="member-photo-placeholder">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+            <span>Foto próximamente</span>
+          </div>
+          <div class="member-info">
+            <h3 class="member-name">Maciel Riberi</h3>
+            <p class="member-role">Batería</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========== SHOWS ========== -->
+    <section id="shows" class="page-section">
+      <h2 class="section-title">SHOWS</h2>
+      <p class="section-subtitle">Próximas fechas</p>
+
+      <div class="shows-grid">
+
+        <!--
+          CÓMO AGREGAR UN SHOW:
+          Copiá este bloque y completá la info.
+          Si el lugar cobra entrada por PassLine, agregá el href al btn-show--primary.
+          Si la entrada es gratis o a la gorra, usá btn-show--ghost con texto "ENTRADA LIBRE".
+          Si se paga en puerta, cambiá el texto a "PAGAR EN PUERTA".
+        -->
+
+        <!-- EJEMPLO — borrar cuando haya fecha real -->
+        <div class="show-card">
+          <div class="show-date-block">
+            <div class="show-day">--</div>
+            <div class="show-month">Próximamente</div>
+          </div>
+          <div class="show-info">
+            <h3 class="show-venue">PRÓXIMO SHOW</h3>
+            <p class="show-city">Córdoba, Argentina</p>
+            <div class="show-actions">
+              <span class="btn-show btn-show--ghost">Por confirmar</span>
+            </div>
+          </div>
+        </div>
+
+        <!--
+        EJEMPLO CON PASSLINE:
+        <div class="show-card">
+          <div class="show-date-block">
+            <div class="show-day">15</div>
+            <div class="show-month">AGO</div>
+          </div>
+          <div class="show-info">
+            <h3 class="show-venue">EL CHILI</h3>
+            <p class="show-city">Córdoba · Puertas: 21:00 hs</p>
+            <div class="show-actions">
+              <a href="https://passline.com/eventos/..." target="_blank" class="btn-show btn-show--primary">ENTRADAS</a>
+              <a href="https://wa.me/5493537608496" target="_blank" class="btn-show btn-show--ghost">INFO WA</a>
+            </div>
+          </div>
+        </div>
+
+        EJEMPLO ENTRADA LIBRE:
+        <div class="show-card">
+          <div class="show-date-block">
+            <div class="show-day">22</div>
+            <div class="show-month">AGO</div>
+          </div>
+          <div class="show-info">
+            <h3 class="show-venue">CASI CULTURAL</h3>
+            <p class="show-city">Córdoba · Entrada libre y gratuita</p>
+            <div class="show-actions">
+              <span class="btn-show btn-show--ghost" style="cursor:default;">ENTRADA LIBRE</span>
+            </div>
+          </div>
+        </div>
+        -->
+
+      </div>
+
+      <!-- Seguí las novedades -->
+      <div class="shows-empty">
+        <p>Seguinos en Instagram para enterarte de cada fecha antes que nadie.</p>
+        <a href="https://www.instagram.com/noctilunio" target="_blank" rel="noopener" class="btn-album">INSTAGRAM @NOCTILUNIO</a>
+      </div>
+    </section>
+
+    <!-- ========== FOTOS ========== -->
+    <section id="fotos" class="page-section">
+      <h2 class="section-title">COBERTURAS</h2>
+      <p class="section-subtitle">Fotos por Vero Gleiser</p>
+
+      <div class="gallery-grid">
+
+        <div class="gallery-card">
+          <img class="gallery-card-thumb" src="fotos-shows/chili/portada.webp" alt="Show en Chili" loading="lazy">
+          <div class="gallery-card-body">
+            <h3 class="gallery-card-title">Chili</h3>
+            <p class="gallery-card-credit">Fotos por Vero Gleiser</p>
+            <button class="btn-album" onclick="abrirGaleria('CHILI', 'fotos-shows/chili/', 45)">VER ÁLBUM</button>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img class="gallery-card-thumb" src="fotos-shows/terraza/portada.webp" alt="Show en Terraza" loading="lazy">
+          <div class="gallery-card-body">
+            <h3 class="gallery-card-title">Terraza</h3>
+            <p class="gallery-card-credit">Fotos por Vero Gleiser</p>
+            <button class="btn-album" onclick="abrirGaleria('TERRAZA', 'fotos-shows/terraza/', 37)">VER ÁLBUM</button>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img class="gallery-card-thumb" src="fotos-shows/grabacion/portada.webp" alt="Grabación del disco" loading="lazy">
+          <div class="gallery-card-body">
+            <h3 class="gallery-card-title">Grabación del disco</h3>
+            <p class="gallery-card-credit">Fotos por Vero Gleiser</p>
+            <button class="btn-album" onclick="abrirGaleria('GRABACIÓN DEL DISCO', 'fotos-shows/grabacion/', 82)">VER ÁLBUM</button>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img class="gallery-card-thumb" src="fotos-shows/bela/portada.webp" alt="Show en Bela" loading="lazy">
+          <div class="gallery-card-body">
+            <h3 class="gallery-card-title">Bela</h3>
+            <p class="gallery-card-credit">Fotos por Vero Gleiser</p>
+            <button class="btn-album" onclick="abrirGaleria('BELA', 'fotos-shows/bela/', 40)">VER ÁLBUM</button>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img class="gallery-card-thumb" src="fotos-shows/sesion/portada.webp" alt="Sesión Vamos a Jugar" loading="lazy">
+          <div class="gallery-card-body">
+            <h3 class="gallery-card-title">Sesión Vamos a Jugar</h3>
+            <p class="gallery-card-credit">Fotos por Vero Gleiser</p>
+            <button class="btn-album" onclick="abrirGaleria('SESIÓN VAMOS A JUGAR', 'fotos-shows/sesion/', 42)">VER ÁLBUM</button>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img class="gallery-card-thumb" src="fotos-shows/petalos/portada.webp" alt="Pétalos" loading="lazy">
+          <div class="gallery-card-body">
+            <h3 class="gallery-card-title">Pétalos</h3>
+            <p class="gallery-card-credit">Fotos por Vero Gleiser</p>
+            <button class="btn-album" onclick="abrirGaleria('PÉTALOS', 'fotos-shows/petalos/', 31)">VER ÁLBUM</button>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img class="gallery-card-thumb" src="fotos-shows/aparece/portada.webp" alt="Aparece Vol II" loading="lazy">
+          <div class="gallery-card-body">
+            <h3 class="gallery-card-title">Aparece Vol. II</h3>
+            <p class="gallery-card-credit">Fotos por Vero Gleiser</p>
+            <button class="btn-album" onclick="abrirGaleria('APARECE VOL. II', 'fotos-shows/aparece/', 83)">VER ÁLBUM</button>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img class="gallery-card-thumb" src="fotos-shows/mundo-feliz/portada.webp" alt="Un Mundo Feliz" loading="lazy">
+          <div class="gallery-card-body">
+            <h3 class="gallery-card-title">Un Mundo Feliz</h3>
+            <p class="gallery-card-credit">Fotos por Vero Gleiser</p>
+            <button class="btn-album" onclick="abrirGaleria('UN MUNDO FELIZ', 'fotos-shows/mundo-feliz/', 18)">VER ÁLBUM</button>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img class="gallery-card-thumb" src="fotos-shows/alejandria/portada.webp" alt="Alejandría" loading="lazy">
+          <div class="gallery-card-body">
+            <h3 class="gallery-card-title">Alejandría</h3>
+            <p class="gallery-card-credit">Fotos por Vero Gleiser</p>
+            <button class="btn-album" onclick="abrirGaleria('ALEJANDRÍA', 'fotos-shows/alejandria/', 22)">VER ÁLBUM</button>
+          </div>
+        </div>
+
+        <div class="gallery-card">
+          <img class="gallery-card-thumb" src="fotos-shows/casi-cultural/portada.webp" alt="Casi Cultural" loading="lazy">
+          <div class="gallery-card-body">
+            <h3 class="gallery-card-title">Casi Cultural</h3>
+            <p class="gallery-card-credit">Fotos por Vero Gleiser</p>
+            <button class="btn-album" onclick="abrirGaleria('CASI CULTURAL', 'fotos-shows/casi-cultural/', 21)">VER ÁLBUM</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========== VIDEOS ========== -->
+    <section id="videos" class="page-section">
+      <h2 class="section-title">VIDEOS</h2>
+      <p class="section-subtitle">Mirá la banda en acción</p>
+
+      <div class="video-grid">
+
+        <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=bktzmiy9XLM', '_blank')">
+          <div class="video-thumb-wrapper">
+            <img src="https://img.youtube.com/vi/bktzmiy9XLM/hqdefault.jpg" alt="Fragmento final de Ninkasi junto a La Poeta Somnífera" loading="lazy">
+            <div class="play-icon">
+              <svg viewBox="0 0 80 80" fill="none">
+                <circle cx="40" cy="40" r="39" fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <polygon points="32,24 60,40 32,56" fill="white" opacity="0.9"/>
+              </svg>
+            </div>
+          </div>
+          <p class="video-label">Fragmento final de Ninkasi junto a La Poeta Somnífera</p>
+        </div>
+
+        <div class="video-card" onclick="window.open('https://www.youtube.com/watch?v=10zz7wXi03I', '_blank')">
+          <div class="video-thumb-wrapper">
+            <img src="https://img.youtube.com/vi/10zz7wXi03I/hqdefault.jpg" alt="Aparece Vol II en El Bastón del Moro" loading="lazy">
+            <div class="play-icon">
+              <svg viewBox="0 0 80 80" fill="none">
+                <circle cx="40" cy="40" r="39" fill="rgba(0,0,0,0.55)" stroke="rgba(255,255,255,0.3)" stroke-width="1"/>
+                <polygon points="32,24 60,40 32,56" fill="white" opacity="0.9"/>
+              </svg>
+            </div>
+          </div>
+          <p class="video-label">Aparece Vol. II en El Bastón del Moro (Video de Parka Vasta)</p>
+        </div>
+
+      </div>
+
+      <div style="text-align:center; margin-bottom: 60px;">
+        <a href="https://youtube.com/@noctilunio" target="_blank" rel="noopener" class="btn-youtube-link">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/></svg>
+          VER MÁS EN YOUTUBE
+        </a>
+      </div>
+
+      <!-- Inéditos -->
+      <div class="ineditos-section">
+        <h2 class="section-title" style="font-size:1.6rem; margin-bottom:8px;">INÉDITOS</h2>
+        <p class="section-subtitle">Material exclusivo</p>
+
+        <div class="video-grid">
+
+          <div class="video-item-inedito">
+            <video controls preload="metadata">
+              <source src="videos/cap 7.mov" type="video/mp4">
+              Tu navegador no soporta video HTML5.
+            </video>
+            <p class="video-inedito-label">[ Archivo — Cap. 7 ]</p>
+          </div>
+
+          <!--
+          Agregar más inéditos así:
+          <div class="video-item-inedito">
+            <video controls preload="metadata">
+              <source src="videos/inedito2.mp4" type="video/mp4">
+            </video>
+            <p class="video-inedito-label">[ Nombre del archivo ]</p>
+          </div>
+          -->
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== PRENSA ========== -->
+    <section id="prensa" class="page-section">
+      <h2 class="section-title">PRENSA</h2>
+      <p class="section-subtitle">Noctilunio en los medios</p>
+
+      <div class="prensa-grid">
+
+        <!--
+          CÓMO AGREGAR UNA MENCIÓN:
+          Copiá este bloque, completá el medio, título, fecha y enlace.
+        -->
+
+        <!-- EJEMPLOS PLACEHOLDER — reemplazalos con las menciones reales -->
+        <div class="prensa-card">
+          <p class="prensa-medio">Nombre del medio</p>
+          <p class="prensa-titulo">Titular de la nota o entrevista sobre Noctilunio</p>
+          <div class="prensa-footer">
+            <span class="prensa-fecha">Mes 2025</span>
+            <a href="#" target="_blank" rel="noopener" class="btn-prensa">LEER NOTA</a>
+          </div>
+        </div>
+
+        <div class="prensa-card">
+          <p class="prensa-medio">Nombre del medio</p>
+          <p class="prensa-titulo">Titular de la nota o entrevista sobre Noctilunio</p>
+          <div class="prensa-footer">
+            <span class="prensa-fecha">Mes 2025</span>
+            <a href="#" target="_blank" rel="noopener" class="btn-prensa">LEER NOTA</a>
+          </div>
+        </div>
+
+        <div class="prensa-card">
+          <p class="prensa-medio">Nombre del medio</p>
+          <p class="prensa-titulo">Titular de la nota o entrevista sobre Noctilunio</p>
+          <div class="prensa-footer">
+            <span class="prensa-fecha">Mes 2025</span>
+            <a href="#" target="_blank" rel="noopener" class="btn-prensa">LEER NOTA</a>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========== FANZINE ========== -->
+    <section id="fanzine" class="page-section">
+      <h2 class="section-title">FANZINE</h2>
+      <p class="section-subtitle">Vol. 1 — Lectura exclusiva</p>
+
+      <p class="fanzine-intro">
+        El fanzine de Noctilunio es un objeto físico. Acá podés leer una versión digital para curiosear,
+        pero si querés tenerlo en tus manos podés pedirlo desde la tienda oficial.
+      </p>
+
+      <div class="fanzine-viewer" id="fanzineViewer">
+        <div class="fanzine-display">
+          <!-- Capa de bloqueo de interacción directa con el PDF -->
+          <div class="fanzine-overlay" oncontextmenu="return false;"></div>
+          <iframe
+            id="fanzineFrame"
+            src="fanzine/1.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
+            title="Fanzine Noctilunio Vol. 1"
+            allowfullscreen="false">
+          </iframe>
+        </div>
+
+        <div class="fanzine-controls">
+          <div class="fanzine-nav">
+            <button class="btn-page" id="btnPagePrev" disabled aria-label="Página anterior">&#8249;</button>
+            <span class="fanzine-page-info" id="fanzinePageNum">Pág. 1 / 16</span>
+            <button class="btn-page" id="btnPageNext" aria-label="Página siguiente">&#8250;</button>
+          </div>
+          <p class="fanzine-note">Versión digital de lectura. Para adquirirlo físicamente, visitá la tienda.</p>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:32px;">
+        <button class="btn-album" onclick="irA('merch')">COMPRÁ EL FANZINE FÍSICO</button>
+      </div>
+    </section>
+
+    <!-- ========== MERCH ========== -->
+    <section id="merch" class="page-section">
+      <h2 class="section-title">TIENDA OFICIAL</h2>
+      <p class="section-subtitle">Pago por transferencia · ALIAS: NOCTILUNIO</p>
+
+      <p class="merch-intro">
+        Elegí el producto, completá el formulario y realizá el pago por transferencia al alias <strong>NOCTILUNIO</strong>.
+        Te contactaremos en menos de 24hs para coordinar la entrega.
+      </p>
+
+      <!-- REMERAS -->
+      <details class="merch-category">
+        <summary>👕 REMERAS</summary>
+        <div class="merch-grid">
+
+          <div class="product-card">
+            <img src="remeras/ABRIRAS TUS PARPADOS.png" alt="Remera Abrirás tus Párpados" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Abrirás tus Párpados</h3>
+              <span class="product-price">$25.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Remera — Abrirás tus Párpados', 25000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="remeras/ALMAS EN PENA.png" alt="Remera Almas en Pena" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Almas en Pena</h3>
+              <span class="product-price">$25.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Remera — Almas en Pena', 25000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="remeras/DESFALLECIENDO.png" alt="Remera Desfalleciendo" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Desfalleciendo</h3>
+              <span class="product-price">$25.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Remera — Desfalleciendo', 25000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="remeras/DONDE ESTAS.png" alt="Remera Dónde Estás" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Dónde Estás</h3>
+              <span class="product-price">$25.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Remera — Dónde Estás', 25000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="remeras/HACIA DENTRO.png" alt="Remera Hacia Dentro" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Hacia Dentro</h3>
+              <span class="product-price">$25.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Remera — Hacia Dentro', 25000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="remeras/LAGRIMA.png" alt="Remera Lágrima" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Lágrima</h3>
+              <span class="product-price">$25.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Remera — Lágrima', 25000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="remeras/PARQUE.png" alt="Remera Parque" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Parque</h3>
+              <span class="product-price">$25.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Remera — Parque', 25000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="remeras/SOMBRA.png" alt="Remera Sombra" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Sombra</h3>
+              <span class="product-price">$25.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Remera — Sombra', 25000)">PEDIR</button>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- TOTEBAGS -->
+      <details class="merch-category">
+        <summary>👜 TOTEBAGS</summary>
+        <div class="merch-grid">
+
+          <div class="product-card">
+            <img src="totebags/TOTEBAG1.png" alt="Totebag 1" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Totebag 1</h3>
+              <span class="product-price">$20.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Totebag 1', 20000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="totebags/TOTEBAG2.png" alt="Totebag 2" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Totebag 2</h3>
+              <span class="product-price">$20.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Totebag 2', 20000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="totebags/totebag3.png" alt="Totebag 3" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Totebag 3</h3>
+              <span class="product-price">$20.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Totebag 3', 20000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="totebags/totebag4.png" alt="Totebag 4" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Totebag 4</h3>
+              <span class="product-price">$20.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Totebag 4', 20000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="totebags/totebag5.png" alt="Totebag 5" loading="lazy">
+            <div class="product-info">
+              <h3 class="product-name">Totebag 5</h3>
+              <span class="product-price">$20.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Totebag 5', 20000)">PEDIR</button>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- FANZINE Y CUADERNOS -->
+      <details class="merch-category">
+        <summary>📓 FANZINE Y CUADERNOS</summary>
+        <div class="merch-grid">
+
+          <div class="product-card">
+            <img src="fanzine.PNG" alt="Fanzine Vol. 1" loading="lazy" onerror="this.style.display='none'">
+            <div class="product-info">
+              <h3 class="product-name">Fanzine Vol. 1</h3>
+              <span class="product-price">$5.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Fanzine Vol. 1', 5000)">PEDIR</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <img src="cuaderno.PNG" alt="Cuaderno Nocturno" loading="lazy" onerror="this.style.display='none'">
+            <div class="product-info">
+              <h3 class="product-name">Cuaderno Nocturno</h3>
+              <span class="product-price">$15.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Cuaderno Nocturno', 15000)">PEDIR</button>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+      <!-- STICKERS -->
+      <details class="merch-category">
+        <summary>✨ STICKERS</summary>
+        <div class="merch-grid">
+
+          <div class="product-card">
+            <img src="stickers.PNG" alt="Pack Stickers" loading="lazy" onerror="this.style.display='none'">
+            <div class="product-info">
+              <h3 class="product-name">Pack Stickers</h3>
+              <span class="product-price">$3.000</span>
+              <button class="btn-pedir" onclick="abrirPedido('Pack Stickers', 3000)">PEDIR</button>
+            </div>
+          </div>
+
+        </div>
+      </details>
+
+    </section>
+
+    <!-- ========== CONTACTO ========== -->
+    <section id="contacto" class="page-section">
+      <h2 class="section-title">CONTACTO</h2>
+      <p class="section-subtitle">Escribinos</p>
+
+      <div class="contact-wrapper">
+
+        <!-- Info de contacto -->
+        <div class="contact-info">
+          <p class="contact-info-title">Dónde encontrarnos</p>
+
+          <ul class="contact-list">
+
+            <li>
+              <a href="mailto:noctilunio@gmail.com">
+                <span class="contact-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="4" width="20" height="16" rx="2"/>
+                    <path d="M2 7l10 7 10-7"/>
+                  </svg>
+                </span>
+                noctilunio@gmail.com
+              </a>
+            </li>
+
+            <li>
+              <a href="https://www.instagram.com/noctilunio" target="_blank" rel="noopener">
+                <span class="contact-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="2" y="2" width="20" height="20" rx="5"/>
+                    <circle cx="12" cy="12" r="4"/>
+                    <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+                  </svg>
+                </span>
+                @noctilunio
+              </a>
+            </li>
+
+            <li>
+              <a href="https://youtube.com/@noctilunio" target="_blank" rel="noopener">
+                <span class="contact-icon">
+                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/>
+                  </svg>
+                </span>
+                @noctilunio
+              </a>
+            </li>
+
+            <li>
+              <a href="https://open.spotify.com/intl-es/artist/2kfqK05z2RnKfhaBf6PcAP" target="_blank" rel="noopener">
+                <span class="contact-icon">
+                  <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.07 14.41c-.19.31-.6.41-.91.22-2.5-1.53-5.66-1.88-9.37-1.03-.37.08-.73-.16-.81-.53-.08-.37.16-.73.53-.81 4.06-.93 7.54-.53 10.35 1.19.31.19.41.6.21.96zm1.09-2.42c-.24.38-.74.5-1.12.27-2.86-1.76-7.22-2.27-10.6-1.24-.43.13-.89-.12-1.02-.55-.13-.43.12-.89.55-1.02 3.87-1.18 8.69-.6 11.96 1.42.38.24.5.74.23 1.12zm.09-2.52C14.16 9.74 8.8 9.56 5.55 10.52c-.52.16-1.06-.14-1.21-.65-.15-.52.14-1.06.65-1.21 3.79-1.15 10.09-.93 14.08 1.54.47.28.62.88.34 1.35-.28.46-.89.61-1.36.32z"/>
+                  </svg>
+                </span>
+                Noctilunio en Spotify
+              </a>
+            </li>
+
+          </ul>
+
+          <div class="contact-divider"></div>
+
+          <div class="management-block">
+            <p class="management-label">Management</p>
+            <p class="management-name">Épica Management</p>
+            <a href="https://www.instagram.com/___epica___" target="_blank" rel="noopener" class="management-link">@___epica___</a>
+          </div>
+        </div>
+
+        <!-- Formulario -->
+        <div class="contact-form">
+          <p class="contact-form-title">Mandanos un mensaje</p>
+
+          <!--
+            IMPORTANTE: Reemplazá la URL de action con tu endpoint de Formspree.
+            1. Creá una cuenta gratis en formspree.io
+            2. Creá un nuevo formulario
+            3. Copiá el action URL que te dan (ej: https://formspree.io/f/xpwzabcd)
+          -->
+          <form id="formContacto" action="https://formspree.io/f/https://formspree.io/f/xwvdldba" method="POST" novalidate>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="contact-nombre">Nombre</label>
+                <input class="form-input" id="contact-nombre" name="nombre" type="text" placeholder="Tu nombre" required>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="contact-email">Email</label>
+                <input class="form-input" id="contact-email" name="email" type="email" placeholder="tu@email.com" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contact-asunto">Asunto</label>
+              <input class="form-input" id="contact-asunto" name="asunto" type="text" placeholder="¿De qué se trata?">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contact-mensaje">Mensaje</label>
+              <textarea class="form-textarea" id="contact-mensaje" name="mensaje" placeholder="Escribí tu mensaje..." rows="5" required></textarea>
+            </div>
+
+            <button class="btn-enviar" type="submit">ENVIAR MENSAJE</button>
+
+          </form>
+
+          <div id="formContactMsg" class="form-success" style="display:none;">
+            <div class="form-success-icon">🌙</div>
+            <h3>¡MENSAJE ENVIADO!</h3>
+            <p>Gracias por escribirnos. Te respondemos pronto.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="site-footer">
+      <p class="footer-copy">© 2026 Noctilunio — Córdoba, Argentina</p>
+
+      <ul class="footer-links">
+        <li><a data-section="inicio">Inicio</a></li>
+        <li><a data-section="shows">Shows</a></li>
+        <li><a data-section="merch">Merch</a></li>
+        <li><a data-section="contacto">Contacto</a></li>
+      </ul>
+
+      <div class="footer-socials">
+
+        <a href="https://www.instagram.com/noctilunio" target="_blank" rel="noopener" class="footer-social-link" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="2" y="2" width="20" height="20" rx="5"/>
+            <circle cx="12" cy="12" r="4"/>
+            <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+
+        <a href="https://youtube.com/@noctilunio" target="_blank" rel="noopener" class="footer-social-link" aria-label="YouTube">
+          <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.7 15.5V8.5l6.3 3.5-6.3 3.5z"/>
+          </svg>
+        </a>
+
+        <a href="https://open.spotify.com/intl-es/artist/2kfqK05z2RnKfhaBf6PcAP" target="_blank" rel="noopener" class="footer-social-link" aria-label="Spotify">
+          <svg viewBox="0 0 24 24" fill="currentColor" stroke="none">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.07 14.41c-.19.31-.6.41-.91.22-2.5-1.53-5.66-1.88-9.37-1.03-.37.08-.73-.16-.81-.53-.08-.37.16-.73.53-.81 4.06-.93 7.54-.53 10.35 1.19.31.19.41.6.21.96zm1.09-2.42c-.24.38-.74.5-1.12.27-2.86-1.76-7.22-2.27-10.6-1.24-.43.13-.89-.12-1.02-.55-.13-.43.12-.89.55-1.02 3.87-1.18 8.69-.6 11.96 1.42.38.24.5.74.23 1.12zm.09-2.52C14.16 9.74 8.8 9.56 5.55 10.52c-.52.16-1.06-.14-1.21-.65-.15-.52.14-1.06.65-1.21 3.79-1.15 10.09-.93 14.08 1.54.47.28.62.88.34 1.35-.28.46-.89.61-1.36.32z"/>
+          </svg>
+        </a>
+
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- ==========================================
+       REPRODUCTOR DE AUDIO
+       ========================================== -->
+  <div class="footer-player">
+    <div class="player-track">
+      <span>▶</span>VAMOS A JUGAR
+    </div>
+    <!--
+      IMPORTANTE: Convertí Vamos a Jugar.wav a MP3 antes de subir a producción.
+      El archivo WAV original pesa 83MB y no es viable para web.
+      Usá un convertidor online o ffmpeg: ffmpeg -i "Vamos a Jugar.wav" -q:a 2 vamos-a-jugar.mp3
+      Luego actualizá el src abajo.
+    -->
+    <audio class="player-audio" controls>
+      <source src="vamos-a-jugar.mp3" type="audio/mp3">
+    </audio>
+  </div>
+
+  <!-- JS Principal -->
+  <script src="js/main.js"></script>
+
+</body>
+</html>
