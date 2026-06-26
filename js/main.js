@@ -185,13 +185,13 @@ formMerch.addEventListener('submit', async e => {
   try {
     // EmailJS — reemplazá estas IDs con las tuyas en emailjs.com
     await emailjs.send(
-      'service_ix7jebq',      // ← tu Service ID de EmailJS
-      'template_2g50y4b',  // ← template para la banda
+      'SERVICE_ID',      // ← tu Service ID de EmailJS
+      'TEMPLATE_BANDA',  // ← template para la banda
       { ...datos, alias: 'noctilunio' }
     );
 
     await emailjs.send(
-      'service_ix7jebq',
+      'SERVICE_ID',
       'TEMPLATE_CLIENTE', // ← template de confirmación para el cliente
       datos
     );
@@ -209,39 +209,111 @@ formMerch.addEventListener('submit', async e => {
 });
 
 /* ============================================
-   FANZINE — VISOR PDF
+   FANZINE — VISOR PDF (PDF.js canvas)
    ============================================ */
 const FANZINE_TOTAL = 16;
-let paginaActual = 1;
+let fanzinePagina   = 1;
+let fanzinePdfDoc   = null;
+let fanzineRendering = false;
 
-const fanzineFrame   = document.getElementById('fanzineFrame');
+const fanzineCover   = document.getElementById('fanzineCover');
+const fanzineReader  = document.getElementById('fanzineReader');
+const fanzineCanvas  = document.getElementById('fanzineCanvas');
+const fanzineLoading = document.getElementById('fanzineLoading');
 const fanzinePageNum = document.getElementById('fanzinePageNum');
 const btnPagePrev    = document.getElementById('btnPagePrev');
 const btnPageNext    = document.getElementById('btnPageNext');
+const btnFanzineOpen  = document.getElementById('btnFanzineOpen');
+const btnFanzineClose = document.getElementById('btnFanzineClose');
 
-function cargarPaginaFanzine(n) {
-  paginaActual = n;
-  // Usamos #toolbar=0&navpanes=0 para ocultar la barra de herramientas del PDF
-  fanzineFrame.src = `fanzine/${n}.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH`;
+// Cargar PDF.js dinámicamente cuando el usuario abre el visor
+async function iniciarFanzine() {
+  fanzineCover.style.display  = 'none';
+  fanzineReader.style.display = 'block';
+
+  if (!fanzinePdfDoc) {
+    // Cargar PDF.js desde CDN si no está cargado
+    if (!window.pdfjsLib) {
+      await cargarScript('https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js');
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    }
+    await cargarPaginaFanzine(1);
+  }
+}
+
+function cargarScript(src) {
+  return new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = src;
+    s.onload = resolve;
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+}
+
+async function cargarPaginaFanzine(n) {
+  if (fanzineRendering) return;
+  fanzineRendering = true;
+  fanzinePagina = n;
+
+  fanzineLoading.classList.remove('hidden');
   fanzinePageNum.textContent = `Pág. ${n} / ${FANZINE_TOTAL}`;
   btnPagePrev.disabled = (n <= 1);
   btnPageNext.disabled = (n >= FANZINE_TOTAL);
+
+  try {
+    // Cada página del fanzine es un PDF separado
+    const loadingTask = pdfjsLib.getDocument(`fanzine/${n}.pdf`);
+    fanzinePdfDoc = await loadingTask.promise;
+
+    const page = await fanzinePdfDoc.getPage(1);
+    const ctx  = fanzineCanvas.getContext('2d');
+
+    // Escalar al ancho disponible del contenedor
+    const containerW = fanzineCanvas.parentElement.clientWidth || 680;
+    const viewport0  = page.getViewport({ scale: 1 });
+    const scale      = containerW / viewport0.width;
+    const viewport   = page.getViewport({ scale });
+
+    fanzineCanvas.width  = viewport.width;
+    fanzineCanvas.height = viewport.height;
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    fanzineLoading.classList.add('hidden');
+  } catch (err) {
+    console.error('Error al cargar PDF:', err);
+    fanzineLoading.querySelector('span').textContent = 'Error al cargar la página.';
+  }
+
+  fanzineRendering = false;
 }
 
-btnPagePrev.addEventListener('click', () => {
-  if (paginaActual > 1) cargarPaginaFanzine(paginaActual - 1);
+function cerrarFanzine() {
+  fanzineReader.style.display = 'none';
+  fanzineCover.style.display  = 'flex';
+}
+
+btnFanzineOpen?.addEventListener('click', iniciarFanzine);
+btnFanzineClose?.addEventListener('click', cerrarFanzine);
+
+btnPagePrev?.addEventListener('click', () => {
+  if (fanzinePagina > 1) cargarPaginaFanzine(fanzinePagina - 1);
+});
+btnPageNext?.addEventListener('click', () => {
+  if (fanzinePagina < FANZINE_TOTAL) cargarPaginaFanzine(fanzinePagina + 1);
 });
 
-btnPageNext.addEventListener('click', () => {
-  if (paginaActual < FANZINE_TOTAL) cargarPaginaFanzine(paginaActual + 1);
+// Teclado en el fanzine
+document.addEventListener('keydown', e => {
+  if (fanzineReader?.style.display === 'none') return;
+  if (e.key === 'ArrowRight' && fanzinePagina < FANZINE_TOTAL) cargarPaginaFanzine(fanzinePagina + 1);
+  if (e.key === 'ArrowLeft'  && fanzinePagina > 1)             cargarPaginaFanzine(fanzinePagina - 1);
+  if (e.key === 'Escape') cerrarFanzine();
 });
 
-// Inicializar el fanzine al activar la sección
-document.querySelector('[data-section="fanzine"]')?.addEventListener('click', () => {
-  setTimeout(() => cargarPaginaFanzine(1), 100);
-});
-
-// Prevenir clic derecho en el área del fanzine (anti-descarga)
+// Anti-descarga
 document.getElementById('fanzineViewer')?.addEventListener('contextmenu', e => e.preventDefault());
 
 /* ============================================

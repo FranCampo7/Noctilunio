@@ -18,6 +18,10 @@
   <meta property="og:type" content="website">
   <meta name="twitter:card" content="summary_large_image">
 
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="logo.PNG">
+  <link rel="apple-touch-icon" href="logo.PNG">
+
   <!-- Fuentes -->
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Oswald:wght@400;500;700&display=swap" rel="stylesheet">
 
@@ -543,26 +547,39 @@
         pero si querés tenerlo en tus manos podés pedirlo desde la tienda oficial.
       </p>
 
-      <div class="fanzine-viewer" id="fanzineViewer">
-        <div class="fanzine-display">
-          <!-- Capa de bloqueo de interacción directa con el PDF -->
-          <div class="fanzine-overlay" oncontextmenu="return false;"></div>
-          <iframe
-            id="fanzineFrame"
-            src="fanzine/1.pdf#toolbar=0&navpanes=0&scrollbar=0&view=FitH"
-            title="Fanzine Noctilunio Vol. 1"
-            allowfullscreen="false">
-          </iframe>
+      <div class="fanzine-viewer" id="fanzineViewer" oncontextmenu="return false;">
+
+        <!-- COVER -->
+        <div class="fanzine-cover" id="fanzineCover">
+          <div class="fanzine-cover-inner">
+            <span class="fanzine-cover-label">NOCTILUNIO</span>
+            <span class="fanzine-cover-title">FANZINE</span>
+            <span class="fanzine-cover-vol">Vol. 1</span>
+            <div class="fanzine-cover-line"></div>
+            <p class="fanzine-cover-note">16 páginas · Edición física disponible en la tienda</p>
+          </div>
+          <button class="btn-fanzine-open" id="btnFanzineOpen">▶ LEER AHORA</button>
         </div>
 
-        <div class="fanzine-controls">
-          <div class="fanzine-nav">
-            <button class="btn-page" id="btnPagePrev" disabled aria-label="Página anterior">&#8249;</button>
-            <span class="fanzine-page-info" id="fanzinePageNum">Pág. 1 / 16</span>
-            <button class="btn-page" id="btnPageNext" aria-label="Página siguiente">&#8250;</button>
+        <!-- VISOR renderizado en canvas via PDF.js -->
+        <div class="fanzine-reader" id="fanzineReader" style="display:none;">
+          <div class="fanzine-canvas-wrap">
+            <canvas id="fanzineCanvas"></canvas>
+            <div class="fanzine-loading" id="fanzineLoading">
+              <span>Cargando página...</span>
+            </div>
           </div>
-          <p class="fanzine-note">Versión digital de lectura. Para adquirirlo físicamente, visitá la tienda.</p>
+
+          <div class="fanzine-controls">
+            <div class="fanzine-nav">
+              <button class="btn-page" id="btnPagePrev" disabled aria-label="Página anterior">&#8249;</button>
+              <span class="fanzine-page-info" id="fanzinePageNum">Pág. 1 / 16</span>
+              <button class="btn-page" id="btnPageNext" aria-label="Página siguiente">&#8250;</button>
+            </div>
+            <button class="btn-fanzine-close" id="btnFanzineClose">✕ CERRAR</button>
+          </div>
         </div>
+
       </div>
 
       <div style="text-align:center; margin-top:32px;">
@@ -839,7 +856,7 @@
             2. Creá un nuevo formulario
             3. Copiá el action URL que te dan (ej: https://formspree.io/f/xpwzabcd)
           -->
-          <form id="formContacto" action="https://formspree.io/f/https://formspree.io/f/xwvdldba" method="POST" novalidate>
+          <form id="formContacto" action="https://formspree.io/f/TU_FORM_ID" method="POST" novalidate>
 
             <div class="form-row">
               <div class="form-group">
@@ -928,7 +945,7 @@
       Luego actualizá el src abajo.
     -->
     <audio class="player-audio" controls>
-      <source src="vamos-a-jugar.mp3" type="audio/mp3">
+      <source src="Vamos a Jugar.wav" type="audio/wav">
     </audio>
   </div>
 
