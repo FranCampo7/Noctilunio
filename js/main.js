@@ -183,18 +183,15 @@ formMerch.addEventListener('submit', async e => {
   };
 
   try {
-    // EmailJS — reemplazá estas IDs con las tuyas en emailjs.com
-    await emailjs.send(
-      'service_ix7jebq',      // ← tu Service ID de EmailJS
-      'TEMPLATE_BANDA',  // ← template para la banda
-      { ...datos, alias: 'noctilunio' }
-    );
+      await emailjs.send(
+        'service_ix7jebq',
+        'template_2g50y4b',  // ← tu ID real
+        { ...datos, alias: 'noctilunio' }
+      );
 
-    await emailjs.send(
-      'service_ix7jebq',
-      'TEMPLATE_CLIENTE', // ← template de confirmación para el cliente
-      datos
-    );
+      // éxito
+      formMerch.style.display = 'none';
+      formSuccessMsg.style.display = 'block';
 
     // Éxito
     formMerch.style.display   = 'none';
