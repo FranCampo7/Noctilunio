@@ -185,13 +185,13 @@ formMerch.addEventListener('submit', async e => {
   try {
     // EmailJS — reemplazá estas IDs con las tuyas en emailjs.com
     await emailjs.send(
-      'SERVICE_ID',      // ← tu Service ID de EmailJS
+      'service_ix7jebq',      // ← tu Service ID de EmailJS
       'TEMPLATE_BANDA',  // ← template para la banda
       { ...datos, alias: 'noctilunio' }
     );
 
     await emailjs.send(
-      'SERVICE_ID',
+      'service_ix7jebq',
       'TEMPLATE_CLIENTE', // ← template de confirmación para el cliente
       datos
     );
