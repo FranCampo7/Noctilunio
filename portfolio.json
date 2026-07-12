@@ -1,0 +1,10 @@
+{
+  "titulo": "Noctilunio",
+  "descripcion": "Sitio oficial de la banda cordobesa Noctilunio. SPA con galería de fotos y modal, videos de YouTube, sección de merch con pedidos por WhatsApp, reproductor de audio y sección de inéditos con efecto glitch.",
+  "categoria": "institucional",
+  "tags": ["Música", "Banda", "Merch"],
+  "tecnologias": ["HTML", "CSS", "JavaScript"],
+  "url": "https://noctilunio.netlify.app/",
+  "estado": "terminado",
+  "destacado": true
+}
